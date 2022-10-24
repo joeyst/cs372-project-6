@@ -16,7 +16,7 @@ def ipv4_to_value(ipv4_addr):
     return:    0x01020304 0b00000001000000100000001100000100 16909060
     """
 
-    # TODO -- write me!
+    return sum([int(n) << (3 - i) * 8 for i, n in enumerate(ipv4_addr.split("."))])
 
 def value_to_ipv4(addr):
     """
