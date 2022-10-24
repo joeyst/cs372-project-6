@@ -1,6 +1,8 @@
 import sys
 import json
 
+# created `example1_output_actual.txt` file w/: `python3 netfuncs.py example1.json | tee example1_output_actual.txt`
+
 def ipv4_to_value(ipv4_addr):
     """
     Convert a dots-and-numbers IP address to a single numeric value.
@@ -33,8 +35,8 @@ def value_to_ipv4(addr):
     addr:   0x01020304 0b00000001000000100000001100000100 16909060
     return: "1.2.3.4"
     """
-
-    return ".".join(list(map(lambda n : str((addr & (0xff << (n * 8))) >> (n * 8)), range(3, -1, -1))))
+    
+    return ".".join(list(map(lambda n : str((int(addr) & (0xff << (n * 8))) >> (n * 8)), range(3, -1, -1))))
 
 def get_subnet_mask_value(slash):
     """
@@ -53,7 +55,10 @@ def get_subnet_mask_value(slash):
     return: 0xfffffe00 0b11111111111111111111111000000000 4294966784
     """
 
-    # TODO -- write me!
+    if len(slash.split("/")) == 1:
+      return None
+    else:
+      return (0xffffffff << (32 - int(slash.split("/")[1]))) & 0xffffffff
 
 def ips_same_subnet(ip1, ip2, slash):
     """
@@ -80,7 +85,9 @@ def ips_same_subnet(ip1, ip2, slash):
     return: False
     """
 
-    # TODO -- write me!
+    ip1_val, ip2_val, mask = ipv4_to_value(ip1), ipv4_to_value(ip2), get_subnet_mask_value(slash)
+    return (ip1_val & mask) == (ip2_val & mask)
+
 
 def get_network(ip_value, netmask):
     """
@@ -93,7 +100,7 @@ def get_network(ip_value, netmask):
     return:   0x01020300
     """
 
-    # TODO -- write me!
+    return ip_value & netmask
 
 def find_router_for_ip(routers, ip):
     """
@@ -134,7 +141,11 @@ def find_router_for_ip(routers, ip):
     return: None
     """
 
-    # TODO -- write me!
+    for addr, addr_dict in routers.items():
+      mask = addr_dict["netmask"]
+      if ips_same_subnet(ip, addr, mask):
+        return addr
+    return None
 
 # Uncomment this code to have it run instead of the real main.
 # Be sure to comment it back out before you submit!
