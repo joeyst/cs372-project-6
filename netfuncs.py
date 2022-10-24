@@ -218,7 +218,7 @@ def main(argv):
         my_tests()
         return 0
     except NameError as e:
-        if e.name != "my_tests":
+        if str(e) != "name 'my_tests' is not defined":
             raise e
 
     try:
