@@ -18,6 +18,7 @@ def ipv4_to_value(ipv4_addr):
     return:    0x01020304 0b00000001000000100000001100000100 16909060
     """
 
+    # split into four strings of numbers 0-255, apply `int()`, map shifting over corresponding # of bytes, and sum the resulting list 
     return sum([int(n) << (3 - i) * 8 for i, n in enumerate(ipv4_addr.split("."))])
 
 def value_to_ipv4(addr):
@@ -35,7 +36,8 @@ def value_to_ipv4(addr):
     addr:   0x01020304 0b00000001000000100000001100000100 16909060
     return: "1.2.3.4"
     """
-    
+
+    # for each index, take the given value, extract the byte at the given index, and convert to string. Then join each string 
     return ".".join(list(map(lambda n : str((int(addr) & (0xff << (n * 8))) >> (n * 8)), range(3, -1, -1))))
 
 def get_subnet_mask_value(slash):
@@ -55,8 +57,11 @@ def get_subnet_mask_value(slash):
     return: 0xfffffe00 0b11111111111111111111111000000000 4294966784
     """
 
+    # if a slash doesn't exist, return `None`
     if len(slash.split("/")) == 1:
       return None
+    # if a slash exists, take the subnet mask value from it by shifting over by the number of 
+    # host bits (and `&` w/ `0xffffffff` to make sure no issues w/ Python's arbitrary precision numbers)
     else:
       return (0xffffffff << (32 - int(slash.split("/")[1]))) & 0xffffffff
 
@@ -85,7 +90,9 @@ def ips_same_subnet(ip1, ip2, slash):
     return: False
     """
 
+    # get IPs as values and get mask 
     ip1_val, ip2_val, mask = ipv4_to_value(ip1), ipv4_to_value(ip2), get_subnet_mask_value(slash)
+    # check if network bits are the same 
     return (ip1_val & mask) == (ip2_val & mask)
 
 
@@ -100,6 +107,7 @@ def get_network(ip_value, netmask):
     return:   0x01020300
     """
 
+    # return network bits 
     return ip_value & netmask
 
 def find_router_for_ip(routers, ip):
@@ -141,10 +149,12 @@ def find_router_for_ip(routers, ip):
     return: None
     """
 
+    # iterate through given routers, return if candidate IP matches w/ current IP based on the subnet 
     for addr, addr_dict in routers.items():
       mask = addr_dict["netmask"]
       if ips_same_subnet(ip, addr, mask):
         return addr
+    # if no IP is on the current subnet, return `None`
     return None
 
 # Uncomment this code to have it run instead of the real main.
