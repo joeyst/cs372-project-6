@@ -235,29 +235,26 @@ def print_ip_routers(routers, src_dest_pairs):
         print(f" {router_ip:>15s}: {router_host_map[router_ip]}")
 
 def main(argv):
-    try:
+    if "my_tests" in globals() and callable(my_tests):
         my_tests()
         return 0
-    except NameError as e:
-        if str(e) != "name 'my_tests' is not defined":
-            raise e
+    else:
+      try:
+          router_file_name = argv[1]
+      except:
+          usage()
+          return 1
 
-    try:
-        router_file_name = argv[1]
-    except:
-        usage()
-        return 1
+      json_data = read_routers(router_file_name)
 
-    json_data = read_routers(router_file_name)
+      routers = json_data["routers"]
+      src_dest_pairs = json_data["src-dest"]
 
-    routers = json_data["routers"]
-    src_dest_pairs = json_data["src-dest"]
-
-    print_routers(routers)
-    print()
-    print_same_subnets(src_dest_pairs)
-    print()
-    print_ip_routers(routers, src_dest_pairs)
+      print_routers(routers)
+      print()
+      print_same_subnets(src_dest_pairs)
+      print()
+      print_ip_routers(routers, src_dest_pairs)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
